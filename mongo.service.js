@@ -132,7 +132,7 @@ class Mongo {
     this.anonymous().then(user => {
 
       this.db.collection(collection).find(
-        Object.assign({}, (param.$or && param.$or.length ? {$or : param.$or} : {}), param.$filter),
+        {...(param.$or && param.$or.length ? {$or : param.$or} : {}), ...param.$filter},
         { sort: { ...param.$sort }, limit : param.$limit}
         ).asArray()
       .then(result => {
