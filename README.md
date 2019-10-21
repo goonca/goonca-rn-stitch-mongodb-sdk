@@ -49,7 +49,9 @@ MongoDB.set(
 connect(onLoad, onError)
 ```
 Connect to database using the parameter defined on set().
+
 parameters:
+
 |Name  |Description  |
 |--|--|
 |onLoad  | Success return function |
@@ -71,7 +73,9 @@ MongoDB.connect(
 authenticate(user, onLoad, onError)
 ```
 Authenticate database user.
+
 parameters:
+
 |Name  |Description  |
 |--|--|
 |user  | Object user to be authenticated {user.email, user.password} |
@@ -95,7 +99,9 @@ MongoDB.connect(
 logout(onLoad, onError)
 ```
 Logout current connected database user.
+
 parameters:
+
 |Name  |Description  |
 |--|--|
 |onLoad  | Success return function |
@@ -117,7 +123,9 @@ MongoDB.logout(
 confirm(token, tokenId, onLoad, onError)
 ```
 Confirm new user register.
+
 parameters:
+
 |Name  |Description  |
 |--|--|
 |token  | User token |
@@ -143,7 +151,9 @@ MongoDB.confirm(
 register(user, onLoad, onError)
 ```
 Register user register.
+
 parameters:
+
 |Name  |Description  |
 |--|--|
 |user  | Object new user {user.email, user.password} |
@@ -169,8 +179,10 @@ update(obj, collection, onLoad, onError)
 ```
 Create or update an object.
 if the object received has the property id it will be updated
-otherwise a new Object will be created
+otherwise a new Object will be created.
+
 parameters:
+
 |Name  |Description  |
 |--|--|
 |obj  | Object to be created/updated |
