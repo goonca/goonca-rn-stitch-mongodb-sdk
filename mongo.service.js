@@ -6,7 +6,7 @@ import {
   AnonymousCredential,
   UserPasswordCredential,
   UserPasswordAuthProviderClient 
-  
+
 } from 'mongodb-stitch-react-native-sdk';
 
 class Mongo {
@@ -15,13 +15,12 @@ class Mongo {
 
     this.config = {
 
-      stitch : {
-        appName : 'appName',
-        dbName : 'dbName',
-        dbUser : 'dbUser',
-        dbPassword : 'dbPassword',
-        dbOwner : 'dbOwner'
-      }
+      appName : 'appName',
+      dbName : 'dbName',
+      dbUser : 'dbUser',
+      dbPassword : 'dbPassword',
+      dbOwner : 'dbOwner',
+      debug : true
     }
 
     this._user;
@@ -30,10 +29,10 @@ class Mongo {
 
   connect(onLoad, onError) {
 
-    Stitch.initializeDefaultAppClient(this.config.Stitch.appName).then(client => {
+    Stitch.initializeDefaultAppClient(this.config.appName).then(client => {
 
       this.client = client;
-      this.db = client.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas').db(this.config.Stitch.dbName);
+      this.db = client.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas').db(this.config.dbName);
       onLoad && onLoad(client);
 
     }).catch(err => {
@@ -76,7 +75,7 @@ class Mongo {
     if(this._user) return this._user;
     else if(!this._anonymous) {
       this._anonymous = this.client.auth.loginWithCredential(
-        new UserPasswordCredential(this.config.Stitch.dbUser, this.config.Stitch.dbPassword)
+        new UserPasswordCredential(this.config.dbUser, this.config.dbPassword)
         //new AnonymousCredential()
       );
     }
@@ -100,7 +99,7 @@ class Mongo {
     const _getAction = (collection, obj) => {
 
       obj.owner_id = obj.owner_id || this.client.auth.user.id;
-      obj.shearedWith = this.config.Stitch.dbOwner;
+      obj.shearedWith = this.config.dbOwner;
 
       return obj._id ?
         this.db.collection(collection).updateOne({'_id': obj._id}, {'$set': obj}) : 
@@ -108,7 +107,7 @@ class Mongo {
     }
 
     const _before = new Date().getMilliseconds();
-    console.log(`update-${collection}() [started]`);
+    this.config.debug && console.log(`update-${collection}() [started]`);
     
     this.anonymous().then(user => {
 
@@ -117,7 +116,7 @@ class Mongo {
 
       _getAction(collection, obj).then(newObj => {
         onLoad && onLoad(newObj);
-        console.log(`update-${collection}() [finished]: ${(new Date().getMilliseconds() - _before)} ms`);
+        this.config.debug && console.log(`update-${collection}() [finished]: ${(new Date().getMilliseconds() - _before)} ms`);
 
       }).catch(err => {
         onError && onError(err);
@@ -128,7 +127,7 @@ class Mongo {
   get(collection, param = {}, onLoad, onError) {
 
     const _before = new Date().getMilliseconds();
-    console.log(`get-${collection}() [started]`);
+    this.config.debug && console.log(`get-${collection}() [started]`);
 
     this.anonymous().then(user => {
 
@@ -139,7 +138,7 @@ class Mongo {
       .then(result => {
 
         onLoad && onLoad(result);
-        console.log(`get-${collection}() [finished]: ${(new Date().getMilliseconds() - _before)} ms`);
+        this.config.debug && console.log(`get-${collection}() [finished]: ${(new Date().getMilliseconds() - _before)} ms`);
       });
 
     }).catch(err => {
