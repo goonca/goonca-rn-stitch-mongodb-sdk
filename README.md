@@ -191,3 +191,4 @@ MongoDB.confirm(
 )
 ```
 
+### get()
