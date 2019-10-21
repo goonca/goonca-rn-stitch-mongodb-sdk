@@ -1,150 +1,151 @@
 
-import { Stitch, RemoteMongoClient, AnonymousCredential, UserPasswordCredential, UserPasswordAuthProviderClient }
-  from 'mongodb-stitch-react-native-sdk';
+import {
+
+  Stitch,
+  RemoteMongoClient,
+  AnonymousCredential,
+  UserPasswordCredential,
+  UserPasswordAuthProviderClient 
+  
+} from 'mongodb-stitch-react-native-sdk';
 
 class Mongo {
 
   constructor() {
 
-    this.Enum = {
+    this.config = {
 
-      LOGGED_USER : 'logged-user',
-
-      COLLECTION : {
-
-        SECTION : 'section'
-      },
-
-      Stitch : {
-
-        APP_NAME : 'APP_NAME',
-        DB_NAME : 'DB_NAME',
-        DB_USER : 'DB_USER',
-        DB_PASSWORD : 'DB_PASSWORD',
-        DB_OWNER_USER : 'DB_OWNER_USER'
+      stitch : {
+        appName : 'appName',
+        dbName : 'dbName',
+        dbUser : 'dbUser',
+        dbPassword : 'dbPassword',
+        dbOwner : 'dbOwner'
       }
     }
 
     this._user;
     this._anonymous;
-
-    Stitch.initializeDefaultAppClient(this.Enum.Stitch.APP_NAME).then(client => {
-      this.client = client;
-      this.db = client.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas').db(this.Enum.Stitch.DB_NAME);
-      //EventRegister.emit(Prop.enum.events.DATABASE_LOADED);
-
-    })
-    .catch(err => {console.log(err)});
-
   }
 
+  connect(onLoad, onError) {
 
-    authenticate(user) {
+    Stitch.initializeDefaultAppClient(this.config.Stitch.appName).then(client => {
 
-      //console.log(user);
+      this.client = client;
+      this.db = client.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas').db(this.config.Stitch.dbName);
+      onLoad && onLoad(client);
 
-      this._user = this.client.auth.loginWithCredential(new UserPasswordCredential(user.email, user.password));
-      this._user.then(result => this.db.collection(this.Enum.COLLECTION.USER).updateOne(
-          {owner_id: this.client.auth.user.id}, {$set:{lastLogon:new Date(),email:user.email}}, {upsert:true}
-        )
-      );
-      return this._user;
-    }
+    }).catch(err => {
+      onError && onError(err);
+    });
+  }
 
-    logout() {
+  set(config) {
+    this.config = config;
+    return this;
+  }
 
-      this.client.auth.logout().then(() => {
-          this._user = undefined;
-          this._anonymous = undefined;
-          //Model.currentUser = null;
-          //delete sessionStorage[this.Enum.LOGGED_USER];          
-        })
-        .catch(err => {
-          console.error(err);
-          //Utils.showError(err);
-        });
-    }
+  authenticate(user, onLoad, onError) {
 
-    anonymous() {
+    this._user = this.client.auth.loginWithCredential(new UserPasswordCredential(user.email, user.password));
+    this._user.then(result => {
 
-      if(this._user) return this._user;
-      else if(!this._anonymous) {
-        //console.log(this.client)
-        this._anonymous = this.client.auth.loginWithCredential(
-          new UserPasswordCredential(this.Enum.Stitch.DB_USER, this.Enum.Stitch.DB_PASSWORD)
-          //new AnonymousCredential()
-        );
-      }
-      return this._anonymous;
-    }
+      onLoad && onLoad(this.client.auth.user);
 
-    confirm(token, tokenId) {
+    }).catch(err => {
+      onError && onError(err);
+    });
+  }
 
-      //console.log(`confirm user: ${token}`);
-      return this.client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
-        .confirmUser(token, tokenId)
-    }
+  logout(onLoad, onError) {
 
-    register(user) {
+    this.client.auth.logout().then(() => {
 
-      //console.log(user);
-      return this.client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
-        .registerWithEmail(user.email, user.password);
-    }
-
-    update(obj, config) {
-
-      const _getAction = (collection, obj) => {
-
-        obj.owner_id = obj.owner_id || this.client.auth.user.id;
-        obj.shearedWith = this.Enum.Stitch.DB_OWNER_USER;
-
-        return obj._id ?
-          this.db.collection(collection).updateOne({'_id': obj._id}, {'$set': obj}) : 
-          this.db.collection(collection).insertOne({...obj, insertDate : new Date()});
-      }
-
-      const _before = new Date().getMilliseconds();
-      console.log(`update-${config.COLLECTION}() [started]`);
-      
-      this.anonymous().then(user => {
-        obj.owner_id = this.client.auth.user.id;
-        delete obj.$$hashKey;
-        _getAction(config.COLLECTION, obj).then(newObj => {
-          config.onload && config.onload(newObj);
-          console.log(`update-${config.COLLECTION}() [finished]: ${(new Date().getMilliseconds() - _before)} ms`);
-        })
-        .catch(err => {
-          console.error(err);
-          //Utils.showError(err);
-        });
-      });
-    }
-
-    get(config, param = {}) {
-
-      const _before = new Date().getMilliseconds();
-      console.log(`get-${config.COLLECTION}() [started]`);
-      this.anonymous().then(user => {
-        /*let _teste = Object.assign({'deleted':{'$ne':true}}, param);*/
-        //console.log(user);
-        this.db.collection(config.COLLECTION).find(
-          Object.assign({}, (param.$or && param.$or.length ? {$or : param.$or} : {}), param.$filter),
-          { sort: { ...param.$sort }, limit : param.$limit}
-          ).asArray()
-        .then(result => {
-          //console.log(result)
-          config.onload && config.onload(result);
-          //else if(!config.preventDefault) $rootScope.$broadcast(`${config.LOAD_LISTENER}_int`, result);
-          console.log(`get-${config.COLLECTION}() [finished]: ${(new Date().getMilliseconds() - _before)} ms`);
-        });
+        this._user = undefined;
+        this._anonymous = undefined;
+        onLoad && onLoad();
 
       }).catch(err => {
-        console.error(err);
-        //Utils.showError(err);
+        onError && onError(err);
       });
+  }
+
+  anonymous() {
+
+    if(this._user) return this._user;
+    else if(!this._anonymous) {
+      this._anonymous = this.client.auth.loginWithCredential(
+        new UserPasswordCredential(this.config.Stitch.dbUser, this.config.Stitch.dbPassword)
+        //new AnonymousCredential()
+      );
+    }
+    return this._anonymous;
+  }
+
+  confirm(token, tokenId) {
+
+    return this.client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
+      .confirmUser(token, tokenId)
+  }
+
+  register(user) {
+
+    return this.client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
+      .registerWithEmail(user.email, user.password);
+  }
+
+  update(obj, collection, onLoad, onError) {
+
+    const _getAction = (collection, obj) => {
+
+      obj.owner_id = obj.owner_id || this.client.auth.user.id;
+      obj.shearedWith = this.config.Stitch.dbOwner;
+
+      return obj._id ?
+        this.db.collection(collection).updateOne({'_id': obj._id}, {'$set': obj}) : 
+        this.db.collection(collection).insertOne({...obj, insertDate : new Date()});
     }
 
+    const _before = new Date().getMilliseconds();
+    console.log(`update-${collection}() [started]`);
+    
+    this.anonymous().then(user => {
+
+      obj.owner_id = this.client.auth.user.id;
+      delete obj.$$hashKey;
+
+      _getAction(collection, obj).then(newObj => {
+        onLoad && onLoad(newObj);
+        console.log(`update-${collection}() [finished]: ${(new Date().getMilliseconds() - _before)} ms`);
+
+      }).catch(err => {
+        onError && onError(err);
+      });
+    });
+  }
+
+  get(collection, param = {}, onLoad, onError) {
+
+    const _before = new Date().getMilliseconds();
+    console.log(`get-${collection}() [started]`);
+
+    this.anonymous().then(user => {
+
+      this.db.collection(collection).find(
+        Object.assign({}, (param.$or && param.$or.length ? {$or : param.$or} : {}), param.$filter),
+        { sort: { ...param.$sort }, limit : param.$limit}
+        ).asArray()
+      .then(result => {
+
+        onLoad && onLoad(result);
+        console.log(`get-${collection}() [finished]: ${(new Date().getMilliseconds() - _before)} ms`);
+      });
+
+    }).catch(err => {
+      onError && onError(err);
+    });
+  }
 }
 
 export default new Mongo();
