@@ -1,3 +1,7 @@
+/*
+* Stitch MongoDB SDK for react-native
+* by @goonca (https://github.com/goonca)
+*/
 
 import {
 
@@ -82,16 +86,20 @@ class Mongo {
     return this._anonymous;
   }
 
-  confirm(token, tokenId) {
+  confirm(token, tokenId, onLoad, onError) {
 
     return this.client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
       .confirmUser(token, tokenId)
+      .then(response => (onLoad && onLoad(response)))
+      .catch(err => (onError && onError(err)));
   }
 
-  register(user) {
+  register(user, onLoad, onError) {
 
     return this.client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
-      .registerWithEmail(user.email, user.password);
+      .registerWithEmail(user.email, user.password)
+      .then(response => (onLoad && onLoad(response)))
+      .catch(err => (onError && onError(err)));
   }
 
   update(obj, collection, onLoad, onError) {
@@ -132,7 +140,7 @@ class Mongo {
     this.anonymous().then(user => {
 
       this.db.collection(collection).find(
-        {...(param.$or && param.$or.length ? {$or : param.$or} : {}), ...param.$filter},
+        {...(param.$or || {}).length ? {$or : param.$or} : {}), ...param.$filter},
         { sort: { ...param.$sort }, limit : param.$limit}
         ).asArray()
       .then(result => {
