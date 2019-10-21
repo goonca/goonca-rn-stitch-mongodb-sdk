@@ -41,7 +41,7 @@ MongoDB.set(
     dbName : '<DB_NAME>',
     dbUser : '<DB_USER>',
     dbPassword : '<DB_PASSWORD>',
-    dbOwner : <true|false>
+    debug : <true|false>
   }
 )
 ```
