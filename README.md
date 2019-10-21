@@ -226,7 +226,7 @@ parameters:
 |--|--|
 |$filter  | Mongo filter |
 |$limit  | list max length |
-|$sort  | '<ASC|DESC>' |
+|$sort  | ASC\|DESC |
 
 
 ##### Example
