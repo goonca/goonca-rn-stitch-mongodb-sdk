@@ -1,0 +1,22 @@
+{
+  "name": "goonca-rn-stitch-mongodb-sdk",
+  "version": "1.0.0",
+  "description": "react native friendly interface for Stitch MongoDB SDK",
+  "main": "mongo.service.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/goonca/goonca-rn-stitch-mongodb-sdk.git"
+  },
+  "author": "goonca",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb-stitch-react-native-sdk": "^4.5.0"
+  },
+  "bugs": {
+    "url": "https://github.com/goonca/goonca-rn-stitch-mongodb-sdk/issues"
+  },
+  "homepage": "https://github.com/goonca/goonca-rn-stitch-mongodb-sdk#readme"
+}
