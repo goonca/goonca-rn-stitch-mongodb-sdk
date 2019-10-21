@@ -17,6 +17,8 @@ Methods
 ```
 set({..config})
 ```
+Store database and connections properties
+
 Arguments:
 
 config <Object>
@@ -85,7 +87,7 @@ parameters:
 
 ##### Example
 ```
-MongoDB.connect(
+MongoDB.authenticate(
   {
     user : {email : '<USER_EMAIL>', password : '<USER_PASSWORD>'}
     onLoad : <Function>,
@@ -163,7 +165,7 @@ parameters:
 
 ##### Example
 ```
-MongoDB.confirm(
+MongoDB.register(
   {
     user : {email : '<USER_EMAIL>', password : '<USER_PASSWORD>'}
     tokenId : '<USER_TOKEN_ID>',
@@ -193,7 +195,7 @@ parameters:
 
 ##### Example
 ```
-MongoDB.confirm(
+MongoDB.update(
   {
     obj : {...}
     tokenId : '<MONGO_DB_COLLECTION>',
@@ -204,3 +206,37 @@ MongoDB.confirm(
 ```
 
 ### get()
+```
+get(collection, param, onLoad, onError)
+```
+Return a list of objects from the collection.
+
+parameters:
+
+|Name  |Description  |
+|--|--|
+|collection  | mongoDB collection |
+|param  | Object containing (see below for a description of these fields) |
+|onLoad  | Success return function |
+|onError  | Fail return function |
+
+**(param)**
+
+|Name  |Description  |
+|--|--|
+|$filter  | Mongo filter |
+|$limit  | list max length |
+|$sort  | '<ASC|DESC>' |
+
+
+##### Example
+```
+MongoDB.get(
+  {
+    collection : '<COLLECTION>'
+    param : {...},
+    onLoad : <Function>,
+    onError : <Function>
+  }
+)
+```

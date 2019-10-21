@@ -1,6 +1,7 @@
 /*
 * Stitch MongoDB SDK for react-native
 * by @goonca (https://github.com/goonca)
+* This is a react native friendly interface for Stitch MongoDB SDK
 */
 
 import {
@@ -31,6 +32,14 @@ class Mongo {
     this._anonymous;
   }
 
+
+  /**
+  * connect()
+  * establish a new coonection to the database previews defined on set()
+  * @param  onLoad: Success return function
+  * @param  onError: Fail return function
+  * @return undefined
+  */
   connect(onLoad, onError) {
 
     Stitch.initializeDefaultAppClient(this.config.appName).then(client => {
@@ -44,11 +53,35 @@ class Mongo {
     });
   }
 
+  /**
+  * set()
+  * store database and connections properties
+  * @param  config: Object containing (see below for a description of these fields)
+  *
+  * | Name       | Description             |
+  * |------------|-------------------------|
+  * | appName    | Stitch application name |
+  * | dbName     | Database name           |
+  * | dbUser     | Database username       |
+  * | dbPassword | Database password       |
+  * | dbOwner    | Database owner id       |
+  * | debug      | Debug enabled           |
+  *
+  * @return this class
+  */
   set(config) {
     this.config = config;
     return this;
   }
 
+  /**
+  * authenticate()
+  * authenticate database user
+  * @param  user: user object {email : '<USER_EMAIL>', password : '<USER_PASSWORD>'}
+  * @param  onLoad: Success return function
+  * @param  onError: Fail return function
+  * @return undefined
+  */
   authenticate(user, onLoad, onError) {
 
     this._user = this.client.auth.loginWithCredential(new UserPasswordCredential(user.email, user.password));
@@ -61,6 +94,13 @@ class Mongo {
     });
   }
 
+  /**
+  * logout()
+  * logout current connected database user
+  * @param  onLoad: Success return function
+  * @param  onError: Fail return function
+  * @return undefined
+  */
   logout(onLoad, onError) {
 
     this.client.auth.logout().then(() => {
@@ -74,6 +114,14 @@ class Mongo {
       });
   }
 
+  /**
+  * anonymous()
+  * use de default credentials in case no user is logged
+  * see AnonymousCredential() for anonymous login
+  * @param  onLoad: Success return function
+  * @param  onError: Fail return function
+  * @return stitch loginWithCredential promisse
+  */
   anonymous() {
 
     if(this._user) return this._user;
@@ -86,6 +134,15 @@ class Mongo {
     return this._anonymous;
   }
 
+  /**
+  * confirm()
+  * confirm new user register
+  * @param  token: new user token
+  * @param  tokenId: new user tokenId
+  * @param  onLoad: Success return function  
+  * @param  onError: Fail return function
+  * @return undefined
+  */
   confirm(token, tokenId, onLoad, onError) {
 
     return this.client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
@@ -94,6 +151,14 @@ class Mongo {
       .catch(err => (onError && onError(err)));
   }
 
+  /**
+  * register()
+  * register new user
+  * @param  user: Object new user {user.email, user.password}
+  * @param  onLoad: Success return function  
+  * @param  onError: Fail return function
+  * @return undefined
+  */
   register(user, onLoad, onError) {
 
     return this.client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
@@ -102,11 +167,24 @@ class Mongo {
       .catch(err => (onError && onError(err)));
   }
 
+  /**
+  * update()
+  * Create or update an object
+  * if the object received has the property _id it will be updated
+  * otherwise a new Object will be created
+  * @param  obj: Object to be created/updated
+  * @param  collection: mongoDB collection  
+  * @param  onLoad: Success return function  
+  * @param  onError: Fail return function
+  * @return undefined
+  */
   update(obj, collection, onLoad, onError) {
 
+    //return insert or update promisse
     const _getAction = (collection, obj) => {
 
       obj.owner_id = obj.owner_id || this.client.auth.user.id;
+      //store the owner id to avoid reading permission issues
       obj.shearedWith = this.config.dbOwner;
 
       return obj._id ?
@@ -132,6 +210,22 @@ class Mongo {
     });
   }
 
+  /**
+  * get()
+  * return a list of objects from the collection
+  * @param  collection: mongoDB collection
+  * @param  param: Object containing (see below for a description of these fields)
+  *
+  * | Name       | Description             |
+  * |------------|-------------------------|
+  * | $filter    | mongo filter            |
+  * | $limit     | list max length         |
+  * | $sort      | 'ASC|DESC'              |
+  *
+  * @param  onLoad: Success return function  
+  * @param  onError: Fail return function
+  * @return undefined
+  */
   get(collection, param = {}, onLoad, onError) {
 
     const _before = new Date().getMilliseconds();
