@@ -13,7 +13,7 @@ import MongoDB from 'goonca-rn-stitch-mongodb-sdk'
 
 Methods
 
-**set**
+###set()
 ```
 set({..config})
 ```
@@ -44,7 +44,7 @@ MongoDB.set(
 )
 ```
 
-**connect**
+###connect()
 ```
 connect(onLoad, onError)
 ```
@@ -66,7 +66,7 @@ MongoDB.connect(
 )
 ```
 
-**authenticate**
+###authenticate()
 ```
 authenticate(user, onLoad, onError)
 ```
@@ -90,7 +90,7 @@ MongoDB.connect(
 )
 ```
 
-**logout**
+###logout()
 ```
 logout(onLoad, onError)
 ```
@@ -112,7 +112,7 @@ MongoDB.logout(
 )
 ```
 
-**confirm**
+###confirm()
 ```
 confirm(token, tokenId, onLoad, onError)
 ```
@@ -138,7 +138,7 @@ MongoDB.confirm(
 )
 ```
 
-**register**
+###register()
 ```
 register(user, onLoad, onError)
 ```
@@ -163,7 +163,7 @@ MongoDB.confirm(
 )
 ```
 
-**update**
+###update()
 ```
 update(obj, collection, onLoad, onError)
 ```
