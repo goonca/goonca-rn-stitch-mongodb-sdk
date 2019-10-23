@@ -27,6 +27,7 @@ Object containing (see below for a description of these fields):
 |Name  |Description  |
 |--|--|
 |appName  | Stitch application name |
+|serviceName  | Stitch service name |
 |dbName  | Database name |
 |dbUser  | Database username |
 |dbPassword  | Database password |
@@ -38,6 +39,7 @@ Object containing (see below for a description of these fields):
 MongoDB.set(
   {
     appName : '<APP_NAME>',
+    serviceName : '<SERVICE_NAME>',
     dbName : '<DB_NAME>',
     dbUser : '<DB_USER>',
     dbPassword : '<DB_PASSWORD>',
