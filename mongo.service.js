@@ -21,6 +21,7 @@ class Mongo {
     this.config = {
 
       appName : 'appName',
+      serviceName : 'serviceName',
       dbName : 'dbName',
       dbUser : 'dbUser',
       dbPassword : 'dbPassword',
@@ -43,9 +44,8 @@ class Mongo {
   connect(onLoad, onError) {
 
     Stitch.initializeDefaultAppClient(this.config.appName).then(client => {
-
       this.client = client;
-      this.db = client.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas').db(this.config.dbName);
+      this.db = client.getServiceClient(RemoteMongoClient.factory, this.config.serviceName).db(this.config.dbName);
       onLoad && onLoad(client);
 
     }).catch(err => {
@@ -234,7 +234,7 @@ class Mongo {
     this.anonymous().then(user => {
 
       this.db.collection(collection).find(
-        {...(param.$or || {}).length ? {$or : param.$or} : {}), ...param.$filter},
+        {...((param.$or || {}).length ? {$or : param.$or} : {}), ...param.$filter},
         { sort: { ...param.$sort }, limit : param.$limit}
         ).asArray()
       .then(result => {
