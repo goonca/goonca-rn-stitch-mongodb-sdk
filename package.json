@@ -1,6 +1,6 @@
 {
   "name": "goonca-rn-stitch-mongodb-sdk",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "react native friendly interface for Stitch MongoDB SDK",
   "main": "mongo.service.js",
   "scripts": {
