@@ -1,9 +1,3 @@
-/*
-* Stitch MongoDB SDK for react-native
-* by @goonca (https://github.com/goonca)
-* This is a react native friendly interface for Stitch MongoDB SDK
-*/
-
 import {
 
   Stitch,
@@ -41,7 +35,7 @@ class Mongo {
   * @param  onError: Fail return function
   * @return undefined
   */
-  connect(onLoad, onError) {
+  static connect(onLoad, onError) {
 
     Stitch.initializeDefaultAppClient(this.config.appName).then(client => {
       this.client = client;
@@ -49,7 +43,7 @@ class Mongo {
       onLoad && onLoad(client);
 
     }).catch(err => {
-      onError && onError(err);
+      onError && onError(err) || console.log(err);
     });
   }
 
@@ -69,7 +63,7 @@ class Mongo {
   *
   * @return this class
   */
-  set(config) {
+  static set(config) {
     this.config = config;
     return this;
   }
@@ -82,7 +76,7 @@ class Mongo {
   * @param  onError: Fail return function
   * @return undefined
   */
-  authenticate(user, onLoad, onError) {
+  static authenticate(user, onLoad, onError) {
 
     this._user = this.client.auth.loginWithCredential(new UserPasswordCredential(user.email, user.password));
     this._user.then(result => {
@@ -90,7 +84,7 @@ class Mongo {
       onLoad && onLoad(this.client.auth.user);
 
     }).catch(err => {
-      onError && onError(err);
+      onError && onError(err) || console.log(err);
     });
   }
 
@@ -101,7 +95,7 @@ class Mongo {
   * @param  onError: Fail return function
   * @return undefined
   */
-  logout(onLoad, onError) {
+  static logout(onLoad, onError) {
 
     this.client.auth.logout().then(() => {
 
@@ -110,7 +104,7 @@ class Mongo {
         onLoad && onLoad();
 
       }).catch(err => {
-        onError && onError(err);
+        onError && onError(err) || console.log(err);
       });
   }
 
@@ -122,7 +116,7 @@ class Mongo {
   * @param  onError: Fail return function
   * @return stitch loginWithCredential promisse
   */
-  anonymous() {
+  static anonymous() {
 
     if(this._user) return this._user;
     else if(!this._anonymous) {
@@ -143,12 +137,12 @@ class Mongo {
   * @param  onError: Fail return function
   * @return undefined
   */
-  confirm(token, tokenId, onLoad, onError) {
+  static confirm(token, tokenId, onLoad, onError) {
 
     return this.client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
       .confirmUser(token, tokenId)
       .then(response => (onLoad && onLoad(response)))
-      .catch(err => (onError && onError(err)));
+      .catch(err => (onError && onError(err) || console.log(err)));
   }
 
   /**
@@ -159,12 +153,12 @@ class Mongo {
   * @param  onError: Fail return function
   * @return undefined
   */
-  register(user, onLoad, onError) {
+  static register(user, onLoad, onError) {
 
     return this.client.auth.getProviderClient(UserPasswordAuthProviderClient.factory)
       .registerWithEmail(user.email, user.password)
       .then(response => (onLoad && onLoad(response)))
-      .catch(err => (onError && onError(err)));
+      .catch(err => (onError && onError(err) || console.log(err)));
   }
 
   /**
@@ -178,7 +172,7 @@ class Mongo {
   * @param  onError: Fail return function
   * @return undefined
   */
-  update(obj, collection, onLoad, onError) {
+  static update(obj, collection, onLoad, onError) {
 
     //return insert or update promisse
     const _getAction = (collection, obj) => {
@@ -205,9 +199,13 @@ class Mongo {
         this.config.debug && console.log(`update-${collection}() [finished]: ${(new Date().getMilliseconds() - _before)} ms`);
 
       }).catch(err => {
-        onError && onError(err);
+        onError && onError(err) || console.log(err);
       });
     });
+  }
+
+  static store(obj, collection, onLoad, onError) {
+    this.update(obj, collection, onLoad, onError);
   }
 
   /**
@@ -226,7 +224,7 @@ class Mongo {
   * @param  onError: Fail return function
   * @return undefined
   */
-  get(collection, param = {}, onLoad, onError) {
+  static get(collection, param = {}, onLoad, onError) {
 
     const _before = new Date().getMilliseconds();
     this.config.debug && console.log(`get-${collection}() [started]`);
@@ -238,7 +236,7 @@ class Mongo {
         { sort: { ...param.$sort }, limit : param.$limit}
         ).asArray()
       .then(result => {
-
+        //console.log(result)
         onLoad && onLoad(result);
         this.config.debug && console.log(`get-${collection}() [finished]: ${(new Date().getMilliseconds() - _before)} ms`);
       });
@@ -249,4 +247,4 @@ class Mongo {
   }
 }
 
-export default new Mongo();
+export { Mongo };
